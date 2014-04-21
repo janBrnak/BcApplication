@@ -1,0 +1,26 @@
+#codeForm .ui-grid-a > .ui-block-a {
+	width: 30%;	
+	max-width: 200px;
+	float: left;
+}
+
+#codeForm .ui-grid-a > .ui-block-b {
+    width: 70%;
+    float: left;
+}
+
+#codeForm .ui-grid-a > .ui-block-b > .ui-body {
+	padding-top: 0;
+    padding-bottom: 0;
+}
+
+@media all and (max-width: 35em) {
+  #codeForm .ui-grid-a > .ui-block-a,
+  #codeForm .ui-grid-a > .ui-block-b,
+  #codeForm .ui-grid-a > .ui-block-c,
+  #codeForm .ui-grid-a > .ui-block-d,
+  #codeForm .ui-grid-a > .ui-block-e {
+    width: 100%;
+    float:none;
+  }
+}

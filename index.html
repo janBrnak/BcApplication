@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <!--
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.custom.css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <script type="text/javascript" src="js/classes/CasLocalStorage.js"></script>
+        <script type="text/javascript" src="js/classes/WebSQL.js"></script>
+        <script type="text/javascript" src="js/libraries/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/libraries/jquery/jquery.mobile.min.js"></script>
+        <title>Computer Algebra System</title>
+    </head>
+    <body>
+        <div data-role="page" data-theme="a" data-dom-cache="true" data-title="Computer Algebra Systems" id="index">
+            <div data-role="header">
+                <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+                <h1>Computer Algebra Systems</h1>
+            </div><!-- /header -->
+
+            <div role="main" class="ui-content">
+                <form id="codeForm" action="#" method="post" data-transition='pop'>
+                    <textarea name="cas_code" id="casCode" cols="30" rows="10"></textarea>
+                    <div class="ui-grid-a ui-responsive">
+                        <div class="ui-block-a">
+                            <div class="ui-body ui-body-d">
+                                CAS systémam:        
+                            </div>
+                        </div>
+                        <div class="ui-block-b">
+                            <div class="ui-body ui-body-d">
+                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                    <input type="radio" name="cas_engine" id="casSystemMaxima" value="maxima" checked="checked">
+                                    <label for="casSystemMaxima">Maxima</label>
+                                    <input type="radio" name="cas_engine" id="casSystemOctave" value="octave">
+                                    <label for="casSystemOctave">Octave</label>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div><!-- /grid-a -->
+
+                    <!-- Výstup grafu -->
+                    <input type="hidden" name="cas_graph_output" id="casGraphOutputArray" value="array" />
+
+                    <!-- Výstup vzorcov -->
+                    <input type="hidden" name="cas_formula_output" id="casFormulaOutputTex" value="tex" />
+
+                    <div class="ui-grid-a ui-responsive">
+                        <div class="ui-block-a">
+                            <div class="ui-body ui-body-d">
+                                <input type="submit" value="Odoslať" data-icon="refresh" class="ui-mini">
+                            </div>
+                        </div>
+                        <div class="ui-block-b">
+                            <div class="ui-body ui-body-d">
+                                
+                            </div>
+                        </div>
+                    </div><!-- /grid-a -->
+                </form>
+
+                <div id="charts" style="display: none;"></div>
+            </div><!-- /content -->
+            
+            <div data-role="panel" data-display="overlay" data-theme="a" id="nav-panel">
+                <ul data-role="listview">
+                    <li data-icon="carat-l"><a href="#" data-rel="close">Skryť menu</a></li>
+                    <li class="link-login"data-icon="action"><a href="./templates/dialogs/login-form.html">Prihlásiť</a></li>
+                    <li class="link-registration" data-icon="action"><a href="./templates/dialogs/registration-form.html">Registrovať</a></li>
+                    <li class="link-logout"data-icon="carat-r"><a href="#">Odhlásiť</a></li>
+                    <li data-icon="star"><a href="./templates/manual.html">Manuál</a></li>
+                    <li data-icon="info"><a href="./templates/information.html">O aplikácii</a></li>
+                    <li data-icon="power"><a href="#">Zatvoriť</a></li>
+                </ul>
+            </div><!-- /panel -->
+            <!--
+            <div data-role="footer">
+
+            </div>--><!-- /footer -->
+        </div><!-- /page index -->
+        
+        <script type="text/javascript" src="js/libraries/highcharts/highcharts.js"></script>
+        <script type="text/javascript" src="js/classes/CasCodeForm.js"></script>
+        <script type="text/javascript" src="js/classes/CasCreateRequest.js"></script>
+        <script type="text/javascript" src="js/classes/CasParseResponse.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>

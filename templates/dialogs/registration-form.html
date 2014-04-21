@@ -1,0 +1,25 @@
+<div data-role="dialog" data-theme="a" data-dom-cache="true" data-title="Login" id="registrationBox">
+    <div data-role="header">
+        <h1>Zaregistrujte sa</h1>
+    </div><!-- /header -->
+
+    <div role="main" class="ui-content">
+        <form id="registrationForm" action="#" method="post" data-transition='pop'>
+        	<label for="registration-name">Meno a priezvisko:</label>
+        	<input type="text" name="registration-name" id="registration-name" value="" />
+        	<label for="registration-email">E-mail (Prihlasovacie meno):</label>
+        	<input type="email" name="registration-email" id="registration-email" value="" />
+        	<label for="registration-password">Heslo:</label>
+        	<input type="password" name="registration-password" id="registration-password" value="" autocomplete="off" />
+        	<!--
+        	<label for="registration-confirm-password">Potvrdenie hesla:</label>
+        	<input type="password" name="registration-confirm-password" id="registration-confirm-password" value="" autocomplete="off" />
+        	-->
+        	<br />
+        	<div class="ui-grid-a ui-responsive">
+			    <div class="ui-block-a"><input type="submit" value="Prihlásiť" data-icon="refresh" /></div>
+			    <div class="ui-block-b"></div>
+			</div>
+        </form>
+    </div><!-- /content -->
+</div><!-- /page manual -->
