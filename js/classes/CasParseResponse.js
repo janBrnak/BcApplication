@@ -63,6 +63,22 @@ CasParseResponse.prototype = {
 	},
 
 	/**
+	 * [getResponse description]
+	 * @return {Object} response json
+	 */
+	getResponse: function () {
+		return this.response;
+	},
+
+	/**
+	 * [getResponseResult description]
+	 * @return {String} result text
+	 */
+	getResponseResult: function () {
+		return this.response.result.result;
+	},
+
+	/**
 	 * [__checkType private method check response type]
 	 * @param  {Object} result [object result consist of three attributes formulas, graphs, results]
 	 * @return {String}        [return formulas/graphs/null]

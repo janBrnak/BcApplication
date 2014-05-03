@@ -2,6 +2,7 @@
 	width: 30%;	
 	max-width: 200px;
 	float: left;
+  clear: none;
 }
 
 #codeForm .ui-grid-a > .ui-block-b {

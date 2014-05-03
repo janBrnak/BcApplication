@@ -23,6 +23,14 @@ CasCodeForm.prototype = {
 	FORM_DATA_FIELDS: FORM_DATA_FIELDS,
 
 	/**
+	 * [getData description]
+	 * @return {Object} data
+	 */
+	getData: function() {
+		return this.data;
+	},
+
+	/**
 	 * [parseObject created new object with forms data]
 	 * @return {Object} [object with forms data name => value]
 	 */
@@ -39,10 +47,6 @@ CasCodeForm.prototype = {
 		}
 
 		return result;
-	},
-
-	xhrRequest: function (request) {
-		var xhr = new XMLHttpRequest();
 	},
 
 	/**

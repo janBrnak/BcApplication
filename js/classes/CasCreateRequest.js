@@ -34,5 +34,37 @@ CasCreateRquest.prototype = {
 		}
 		
 		return null;
+	},
+
+	/**
+	 * [getCode get code]
+	 * @return {String} code
+	 */
+	getCode: function() {
+		return this.params.code;
+	},
+
+	/**
+	 * [getEngine get engine]
+	 * @return {String} engine
+	 */
+	getEngine: function() {
+		return this.params.engine;
+	},
+
+	/**
+	 * [getGraphOutput get graph output]
+	 * @return {String} graph output
+	 */
+	getGraphOutput: function() {
+		return this.params.graph_output;
+	},
+
+	/**
+	 * [getFormulaOutput get formula output]
+	 * @return {String} formula output
+	 */
+	getFormulaOutput: function() {
+		return this.params.formula_output;
 	}
 }

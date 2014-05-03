@@ -14,6 +14,7 @@
         <script type="text/javascript" src="js/classes/CasLocalStorage.js"></script>
         <script type="text/javascript" src="js/classes/WebSQL.js"></script>
         <script type="text/javascript" src="js/libraries/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="js/functions.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/libraries/jquery/jquery.mobile.min.js"></script>
         <title>Computer Algebra System</title>
@@ -23,9 +24,17 @@
             <div data-role="header">
                 <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
                 <h1>Computer Algebra Systems</h1>
+                <a href="" class="button-login-name" style="display:none;" data-icon="user" data-iconpos="right"></a>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="./templates/dialogs/load-requests.html?save" data-icon="bullets" data-iconpos="right" title="Uložné">Uložné</a></li>
+                        <li><a href="./templates/dialogs/load-requests.html?example" data-icon="bullets" data-iconpos="right" title="Príklady">Príklady</a></li>
+                    </ul>
+                </div><!-- /navbar -->
             </div><!-- /header -->
 
             <div role="main" class="ui-content">
+                <div id="alertIndex" class="alert">&nbsp</div>
                 <form id="codeForm" action="#" method="post" data-transition='pop'>
                     <textarea name="cas_code" id="casCode" cols="30" rows="10"></textarea>
                     <div class="ui-grid-a ui-responsive">
@@ -51,19 +60,12 @@
 
                     <!-- Výstup vzorcov -->
                     <input type="hidden" name="cas_formula_output" id="casFormulaOutputTex" value="tex" />
-
+                    
+                    <!-- Form buttons -->
                     <div class="ui-grid-a ui-responsive">
-                        <div class="ui-block-a">
-                            <div class="ui-body ui-body-d">
-                                <input type="submit" value="Odoslať" data-icon="refresh" class="ui-mini">
-                            </div>
-                        </div>
-                        <div class="ui-block-b">
-                            <div class="ui-body ui-body-d">
-                                
-                            </div>
-                        </div>
-                    </div><!-- /grid-a -->
+                        <div class="ui-block-a"><input type="submit" value="Odoslať" data-icon="refresh" class="ui-mini" /></div>
+                        <div class="ui-block-a"><a href="./templates/dialogs/save-program.html" data-role="button" data-icon="edit" class="link-save-program ui-btn ui-shadow ui-corner-all" style="display:none;">Uložiť</a></div>
+                    </div>
                 </form>
 
                 <div id="charts" style="display: none;"></div>
@@ -72,8 +74,8 @@
             <div data-role="panel" data-display="overlay" data-theme="a" id="nav-panel">
                 <ul data-role="listview">
                     <li data-icon="carat-l"><a href="#" data-rel="close">Skryť menu</a></li>
-                    <li class="link-login"data-icon="action"><a href="./templates/dialogs/login-form.html">Prihlásiť</a></li>
-                    <li class="link-registration" data-icon="action"><a href="./templates/dialogs/registration-form.html">Registrovať</a></li>
+                    <li class="link-login"data-icon="action"><a href="./templates/dialogs/login-form.html" title="Prihlásiť">Prihlásiť</a></li>
+                    <li class="link-registration" data-icon="action"><a href="./templates/dialogs/registration-form.html" title="Registrovať">Registrovať</a></li>
                     <li class="link-logout"data-icon="carat-r"><a href="#">Odhlásiť</a></li>
                     <li data-icon="star"><a href="./templates/manual.html">Manuál</a></li>
                     <li data-icon="info"><a href="./templates/information.html">O aplikácii</a></li>

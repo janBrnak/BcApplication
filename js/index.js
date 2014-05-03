@@ -1,10 +1,47 @@
+// constants URLs
 const NODE_SERVER_URL = "http://bc-app-store-data.herokuapp.com/";
 const ROOT_PATH = "http://localhost/BachelorThesis/app/www/";
+// constants tables
+const TABLE_USERS = "users";
+const TABLE_USER_REQUESTS = "user_requests";
+// form index element id
+const FORM_INDEX_ID_CODE = "casCode";
+const FORM_INDEX_ID_GRAPH_OUTPUT_ARRAY = "casGraphOutputArray";
+const FORM_INDEX_ID_FORMULA_OUTPUT_TEX = "casFormulaOutputTex";
+const FORM_INDEX_ID_SYSTEM_MAXIMA = "casSystemMaxima";
+const FORM_INDEX_ID_SYSTEM_OCTAVE = "casSystemOctave";
+// constants alert messages
+const ALERT_MESSAGES = {
+    0: "Chyba servera",
+    1: "",
+    2: "Všetky polia sú povinné",
+    3: "Zvolená e-mailová adresa už bola zaregistrovana",
+    4: "Nebol najdený žiadný záznam",
+    5: "Nie ste priháseny"
+};
+// constants alert messages
+const ALERT = "alert";
+const ALERT_INFO = "alert-info";
+const ALERT_WARRNING = "alert-warrning";
+const ALERT_SUCCESS = "alert-success";
+const ALERT_ERROR = "alert-error";
 
+// storages
 var storage = null;
 var dbUsers = null;
 var dbUserRequests = null;
 
+// links & buttons
+var button_login_user = null;
+var link_registration = null;
+var link_login = null;
+var link_logout = null;
+var link_save_program = null;
+
+// chart data
+var casChart = {name: null, form: null, request: null, response: null};
+
+// phonegap app init
 var app = {
     // Application Constructor
     initialize: function() {
@@ -35,13 +72,13 @@ $(document).on("mobileinit", function() {
     $.mobile.allowCrossDomainPages = true;
     $.mobile.phonegapNavigationEnabled = true;
     $.mobile.defaultPageTransition = "none";            // default fade
-    $.mobile.page.prototype.options.domCache = true;    // cache pages
+    $.mobile.page.prototype.options.domCache = false;    // cache pages
 
     // init local storage
     storage = new CasLocalStorage("cas");
 
     // init database for users    
-    dbUsers = new WebSQL("users", "1.0.0", "Registrered users", 2 * 1024 * 1024);
+    dbUsers = new WebSQL(TABLE_USERS, "1.0.0", "Registrered users", 2 * 1024 * 1024);
     
     // init database for user requests    
     dbUserRequests = new WebSQL("user_requests", "1.0.0", "All requests sent to server", 3 * 1024 * 1024);
@@ -53,7 +90,7 @@ $(document).on("mobileinit", function() {
         });
     
     // create table user_requests
-    var dbUserRequestsSQL = "CREATE TABLE IF NOT EXISTS user_requests (id INTEGER PRIMARY KEY AUTOINCREMENT, fk_user_id INTEGER, name_request VARCHAR, request VARCHAR, response VARCHAR, created DATETIME)";
+    var dbUserRequestsSQL = "CREATE TABLE IF NOT EXISTS " + TABLE_USER_REQUESTS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, fk_user_id INTEGER, name_request VARCHAR, form VARCHAR, request VARCHAR, response VARCHAR, created DATETIME)";
     dbUserRequests.runTransaction(function(tx) {
             tx.executeSql(dbUserRequestsSQL, [], dbUserRequests.successCallback, dbUserRequests.errorCallback);
         });
@@ -69,47 +106,54 @@ $(document).on("pageinit", "#index", function(event, data) {
         $.mobile.changePage(ROOT_PATH + "templates/dialogs/login-notification.html", {role: "dialog"});
         storage.setFirstOpen(1);
     }
-    
+
     // submit form
     $("form#codeForm").on("submit", function(event, data) {
         event.preventDefault();
         boxLoading("show", "Sending...", "b", "");
         
-        var casCodeForm = new CasCodeForm($(this).serializeArray());
-        var casCreateRequest = new CasCreateRquest(casCodeForm.parseObject());
+        casChart.form = new CasCodeForm($(this).serializeArray());
+        casChart.request = new CasCreateRquest(casChart.form.parseObject());
         
-        $.post(casCodeForm.CAS_SERVER_URL, casCreateRequest.getRequest('json'), function(response) {
-            var casParseResponse = new CasParseResponse(response);
+        if ($("#" + FORM_INDEX_ID_CODE).val().length > 0) {
+            $.post(casChart.form.CAS_SERVER_URL, casChart.request.getRequest('json'), function(response) {
+                casChart.response = new CasParseResponse(response);
 
-            switch (casParseResponse.getType()) {
-                // graphs
-                case 'graphs':
-                    var graphs = casParseResponse.getGraphs();
-                    var chartBox = $('#charts');
+                if (casChart.response.getType() !== null) {
+                    switch (casChart.response.getType()) {
+                        // graphs
+                        case 'graphs':
+                            showCharts(casChart.response.getGraphs());
+                            break;
 
-                    chartBox.append('<div class="chart" style="height: 300px;"></div>')
-                    chartBox.show();
-                    chartBox.children('div.chart').eq(0).highcharts(graphs['2d'][0]);
-                    break;
+                        // formulas
+                        case 'formulas':
+                            break;
+                    }
 
-                // formulas
-                case 'formulas':
-                    break;
-            }
+                    generateAlertMessage('hide', 'alertIndex', ALERT_ERROR);
+                }
+                else {
+                    generateAlertMessage('show', 'alertIndex', ALERT_ERROR, casChart.response.getResponseResult().replace(/\n/g, "<br />"));
+                }
 
+                if (storage.isUserLogged())
+                    link_save_program.show();
+
+                boxLoading("hide");
+                console.log("SUCCESS: Server sent response");
+            }, "json")
+            .fail(function() {
+                generateAlertMessage('show', 'alertIndex', ALERT_ERROR, ALERT_MESSAGES[0]);
+                boxLoading("hide");
+                console.log("ERROR: Server doesn't respond");
+            })
+        }
+        else {
+            generateAlertMessage('show', 'alertIndex', ALERT_ERROR, ALERT_MESSAGES[2]);
             boxLoading("hide");
-            console.log("SUCCESS: Server sent response");
-        }, "json")
-        .done(function() {
-            //alert( "second success" );
-        })
-        .fail(function() {
-            console.log("ERROR: Server doesn't respond");
-        })
-        .always(function() {
-            //alert( "finished" );
-        });
-        
+            console.log("ERROR: All fields are mandatory.");
+        }
         /*
         var userRquests = {
             1:{"fk_user_id": 9, "name_request": "2d chart 1", "request": "request 1", "response": "response 1"},
@@ -131,6 +175,12 @@ $(document).on("pageinit", "#index", function(event, data) {
     });
 });
 
+$(document).on("pageshow", "#index", function(event, data) {
+    // load chart
+    if (casChart.response !== null)
+        showCharts(casChart.response.getGraphs());
+});
+
 /**
  * Login dialog page
  */
@@ -148,18 +198,21 @@ $(document).on("pageinit", "#loginBox", function(event, data) {
                     if (response.attributes.length > 0 && response.attributes[0]) {
                         with (response.attributes[0]) {
                             storage.setUserId(id);
+                            storage.setFirstOpen(1);
 
-                            var dbSQL = "INSERT INTO users (id, name, email) VALUES ('" + id + "', '" + name + "', '" + email + "')";
+                            var dbSQL = "INSERT INTO " + TABLE_USERS + " (id, name, email) VALUES ('" + id + "', '" + name + "', '" + email + "')";
                             dbUsers.runTransaction(function(tx) {
                                     tx.executeSql(dbSQL, [], dbUsers.successCallback, dbUsers.errorCallback);
                                 });
                         }
                         
+                        generateAlertMessage('hide', 'alertLogin', ALERT_ERROR);
                         $.mobile.changePage( ROOT_PATH + "index.html", {});
                         console.log("SUCCESS: User was successful login"); 
                     }
                     break;
                 case 2:
+                    generateAlertMessage('show', 'alertLogin', ALERT_ERROR, ALERT_MESSAGES[2]);
                     console.log("ERROR: All fields are mandatory");
                     break;
             }
@@ -187,29 +240,29 @@ $(document).on("pageinit", "#registrationBox", function(event, data) {
         $.post(NODE_SERVER_URL + 'registration_user', {"name": registration_name, "email": registration_email, "password": registration_password}, function(response) {
             switch (response.error) {
                 case 0:
-                    console.log(response);
-                    
                     if (response.attributes) {
                         with (response.attributes) {
-                            /*
                             storage.setUserId(id);
+                            storage.setFirstOpen(1);
 
-                            var dbSQL = "INSERT INTO users (id, name, email) VALUES ('" + id + "', '" + name + "', '" + email + "')";
+                            var dbSQL = "INSERT INTO " + TABLE_USERS + " (id, name, email) VALUES ('" + id + "', '" + name + "', '" + email + "')";
                             dbUsers.runTransaction(function(tx) {
                                     tx.executeSql(dbSQL, [], dbUsers.successCallback, dbUsers.errorCallback);
                                 });
-                            */
                         }
-                        
+
+                        generateAlertMessage('hide', 'alertŔegistration', ALERT_ERROR);
                         $.mobile.changePage( ROOT_PATH + "index.html", {});
                         console.log("SUCCESS: User was successful login"); 
                     }
                     
                     break;
                 case 2:
+                    generateAlertMessage('show', 'alertŔegistration', ALERT_ERROR, ALERT_MESSAGES[2]);
                     console.log("ERROR: All fields are mandatory");
                     break;
                 case 3:
+                    generateAlertMessage('show', 'alertŔegistration', ALERT_ERROR, ALERT_MESSAGES[3]);
                     console.log("WARRNING: Email address is registered");
                     break;
             }
@@ -217,68 +270,113 @@ $(document).on("pageinit", "#registrationBox", function(event, data) {
             boxLoading("hide");
         }, "json")
         .fail(function() {
+            generateAlertMessage('show', 'alertIndex', ALERT_ERROR, ALERT_MESSAGES[0]);
             console.log("ERROR: Server doesn't respond");
         });
     });
 });
 
 /**
+ * Save program dialog page
+ */
+$(document).on("pageinit", "#saveProgramBox", function(event, data) {
+    $("form#saveProgramForm").on("submit", function(event, data) {
+        var program_name = $("input#save-program-name").val();
+        event.preventDefault();
+        boxLoading("show", "Sending...", "b", "");
+
+        if (program_name !== "") {
+            casChart.name = program_name;
+
+            var dbUserRequestsSQL = "INSERT INTO " + TABLE_USER_REQUESTS + " (fk_user_id, name_request, form, request, response, created) VALUES ('" + storage.getUserId() + "', '" + casChart.name + "', '" + JSON.stringify(casChart.form.getData()) + "', '" + JSON.stringify(casChart.request.getRequest('json')) + "', '" + JSON.stringify(casChart.response.getResponse()) + "', '00:00:00')";
+            dbUserRequests.runTransaction(function(tx) {
+                    tx.executeSql(dbUserRequestsSQL, [], dbUserRequests.successCallback, dbUserRequests.errorCallback);
+                });
+
+            generateAlertMessage('hide', 'alertSaveProgram', ALERT_ERROR);
+            $.mobile.changePage( ROOT_PATH + "index.html", {});
+        }
+        else
+            generateAlertMessage('show', 'alertSaveProgram', ALERT_ERROR, ALERT_MESSAGES[2]);
+
+        setTimeout('boxLoading("hide")', 500);
+    });
+});
+
+/**
+ * Load saved requests dialog page
+ */
+$(document).on("pagebeforeshow", "#loadRequestsBox", function(event, data) {
+    if (!storage.isUserLogged()) {
+        generateAlertMessage('show', 'alertLoadRequests', ALERT_ERROR, ALERT_MESSAGES[5]);
+    }
+    else {
+        var dbUserRequestsSQL = "SELECT * FROM " + TABLE_USER_REQUESTS + " WHERE fk_user_id = " + storage.getUserId();
+        dbUserRequests.runTransaction(function(tx) {
+                tx.executeSql(dbUserRequestsSQL, [], loadSavedRequestsCallback, dbUserRequests.errorCallback);
+            });
+    }
+});
+
+/**
+ * Load example requests dialog page
+ */
+/*
+$(document).on("pageinit", "#loadExampleRequestsBox", function(event, data) {
+    if (storage.getUserId() === null) {
+
+    }
+    else {
+        var dbUserRequestsSQL = "SELECT * FROM " + TABLE_USER_REQUESTS + " WHERE fk_user_id = 0";
+        dbUserRequests.runTransaction(function(tx) {
+                tx.executeSql(dbUserRequestsSQL, [], loadSavedRequestsCallback, dbUserRequests.errorCallback);
+            });
+    }
+});
+*/
+/**
  * Page before show
  */
 $(document).on("pagebeforeshow", function(event, data) {
-    var link_registration = $(".link-registration");
-    var link_login = $(".link-login");
-    var link_logout = $(".link-logout");
+    button_login_user = $(".button-login-name");
+    link_registration = $(".link-registration");
+    link_login = $(".link-login");
+    link_logout = $(".link-logout");
+    link_save_program = $(".link-save-program");
     
     // is user logged
     if (storage.isUserLogged()) {
-        link_registration.hide();
-        link_login.hide();
-        link_logout.show();
+        var dbUsersSQL = "SELECT name FROM " + TABLE_USERS + " WHERE id = " + storage.getUserId();
+        dbUsers.runTransaction(function(tx) {
+                tx.executeSql(dbUsersSQL, [], loginCallback, dbUsers.errorCallback);
+            });
     }
     // isn't user logged
     else {
+        button_login_user.hide();
         link_registration.show();
         link_login.show();
         link_logout.hide();
+        link_save_program.hide();
     }
 
     // logoff user
     $(".link-logout a").on("click", function() {
         boxLoading("show", "Logout...", "b", "");
 
-        var dbUsersSQL = "DELETE FROM users WHERE id = " + storage.getUserId();
+        var dbUsersSQL = "DELETE FROM " + TABLE_USERS + " WHERE id = " + storage.getUserId();
         dbUsers.runTransaction(function(tx) {
-                tx.executeSql(dbUsersSQL, [], dbUsers.successCallback, dbUsers.errorCallback);
+                tx.executeSql(dbUsersSQL, [], loginCallback, dbUsers.errorCallback);
             });
 
-        var dbUserRequestsSQL = "DELETE FROM user_requests WHERE fk_user_id = " + storage.getUserId();
+        var dbUserRequestsSQL = "DELETE FROM " + TABLE_USER_REQUESTS + " WHERE fk_user_id = " + storage.getUserId();
         dbUserRequests.runTransaction(function(tx) {
                 tx.executeSql(dbUserRequestsSQL, [], dbUserRequests.successCallback, dbUserRequests.errorCallback);
             });
 
-        storage.setUserId(null);
-        storage.setFirstOpen(null);
-
-        link_registration.show();
-        link_login.show();
-        link_logout.hide();
-
         $.mobile.changePage( ROOT_PATH + "index.html", {});
         $("#nav-panel").panel("close");
-        setTimeout('boxLoading("hide")', 2000);
+        setTimeout('boxLoading("hide")', 1000);
     });
 });
 
-function boxLoading(action, text, theme, html) {
-    if (action === "show") {
-        $.mobile.loading("show", {
-            text: text,
-            textVisible: true,
-            theme: theme,
-            html: html
-        });
-    }
-    else
-        $.mobile.loading("hide");
-}
